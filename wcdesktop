@@ -1,0 +1,52 @@
+#!/bin/bash
+
+function show_usage() {
+  echo "Usage: $(basename $0) [OPTIONS] [FILES]"
+  echo "Draw Wallpaper Clock on desktop"
+  echo
+  echo "  -i seconds         interval to switch to another wallpaper"
+  echo "  -h                 show this information"
+  echo 
+  echo "With no FILES, scan for *.wcz in current directory."
+  echo 
+  echo "Examples:"
+  echo "  $(basename $0) led.wcz"
+  echo "  $(basename $0) -i 600 a.wcz b.wcz c.wcz"
+  echo
+}
+
+while getopts ":hi:" opt; do
+  case $opt in
+    h)
+      show_usage >&2
+      exit 0
+      ;;
+    i)
+      export WC_THEME_CHANGE_RATE="$OPTARG"
+      ;;
+    \?)
+      echo "Invalid option: -${OPTARG}" >&2
+      show_usage >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      show_usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+shift $((OPTIND-1))
+
+if which python2 >/dev/null; then
+  python2 ./WallpaperClockDesktop.py "$@"
+else
+  if which python >/dev/null; then
+    python ./WallpaperClockDesktop.py "$@"
+  else
+    echo Python2 required but not found.
+    exit 1
+  fi
+fi
+
